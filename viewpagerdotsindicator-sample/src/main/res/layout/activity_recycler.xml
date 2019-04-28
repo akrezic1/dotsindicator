@@ -8,7 +8,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"/>
+        android:layout_marginBottom="100dp"/>
 
     <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
         android:id="@+id/worm_dots_indicator"
@@ -17,5 +17,13 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="16dp"
         app:dotsColor="@color/colorPrimaryDark"/>
+
+    <com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator
+        android:id="@+id/spring_dots_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:dotsStrokeColor="@color/md_amber_400"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="46dp"/>
 
 </FrameLayout>

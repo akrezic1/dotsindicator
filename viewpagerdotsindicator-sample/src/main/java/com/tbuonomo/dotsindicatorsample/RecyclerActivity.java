@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator;
 import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class RecyclerActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         WormDotsIndicator wormDotsIndicator = findViewById(R.id.worm_dots_indicator);
+        SpringDotsIndicator springDotsIndicator = findViewById(R.id.spring_dots_indicator);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         recyclerView.setAdapter(new Adapter());
@@ -42,6 +44,8 @@ public class RecyclerActivity extends AppCompatActivity {
 
         wormDotsIndicator.setColorsList(colorsList);
         wormDotsIndicator.setRecyclerView(recyclerView, snapHelper);
+
+        springDotsIndicator.setRecyclerView(recyclerView, snapHelper);
     }
 
     class Adapter extends RecyclerView.Adapter<ViewHolder> {

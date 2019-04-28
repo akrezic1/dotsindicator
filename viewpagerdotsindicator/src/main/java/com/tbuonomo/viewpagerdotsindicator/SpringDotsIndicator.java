@@ -1,13 +1,18 @@
 package com.tbuonomo.viewpagerdotsindicator;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.drawable.GradientDrawable;
 import android.support.animation.SpringAnimation;
 import android.support.animation.SpringForce;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.PagerSnapHelper;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,6 +37,8 @@ public class SpringDotsIndicator extends FrameLayout {
     private List<ImageView> strokeDots;
     private View dotIndicatorView;
     private ViewPager viewPager;
+    private RecyclerView recyclerView = new RecyclerView(getContext());
+    private SnapHelper snapHelper = new PagerSnapHelper();
 
     // Attributes
     private int dotsSpacing;
@@ -49,6 +56,7 @@ public class SpringDotsIndicator extends FrameLayout {
 
     private boolean dotsClickable;
     private ViewPager.OnPageChangeListener pageChangedListener;
+    private RecyclerView.OnScrollListener recyclerPagerListener;
 
     public SpringDotsIndicator(Context context) {
         this(context, null);
@@ -126,13 +134,23 @@ public class SpringDotsIndicator extends FrameLayout {
                 removeDots(strokeDots.size() - viewPager.getAdapter().getCount());
             }
             setUpDotsAnimators();
+
+        } else if (recyclerView != null && recyclerView.getAdapter() != null) {
+            if (strokeDots.size() < recyclerView.getAdapter().getItemCount()) {
+                addStrokeDots(recyclerView.getAdapter().getItemCount() - strokeDots.size());
+            } else if (strokeDots.size() > recyclerView.getAdapter().getItemCount()) {
+                removeDots(strokeDots.size() - recyclerView.getAdapter().getItemCount());
+            }
+            setUpDotsAnimators();
+
         } else {
             Log.e(SpringDotsIndicator.class.getSimpleName(), "You have to set an adapter to the view pager before !");
         }
     }
 
     private void setUpDotIndicator() {
-        if (viewPager != null && viewPager.getAdapter() != null && viewPager.getAdapter().getCount() == 0) {
+        if ((viewPager != null && viewPager.getAdapter() != null && viewPager.getAdapter().getCount() == 0) ||
+                (recyclerView != null && recyclerView.getAdapter() != null && recyclerView.getAdapter().getItemCount() == 0)) {
             return;
         }
 
@@ -207,6 +225,12 @@ public class SpringDotsIndicator extends FrameLayout {
             setUpOnPageChangedListener();
             viewPager.addOnPageChangeListener(pageChangedListener);
             pageChangedListener.onPageScrolled(0, 0, 0);
+        }  else if (recyclerView != null && recyclerView.getAdapter() != null && recyclerView.getAdapter().getItemCount() > 0) {
+            if (recyclerPagerListener != null) {
+                recyclerView.removeOnScrollListener(recyclerPagerListener);
+            }
+            setUpRecyclerPageListener();
+            recyclerView.addOnScrollListener(recyclerPagerListener);
         }
     }
 
@@ -228,6 +252,26 @@ public class SpringDotsIndicator extends FrameLayout {
             public void onPageScrollStateChanged(int state) {
             }
         };
+    }
+
+    private void setUpRecyclerPageListener() {
+        recyclerPagerListener = new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                int snapPosition = recyclerView.getLayoutManager()
+                                               .getPosition(snapHelper.findSnapView(recyclerView.getLayoutManager()));
+                float globalPositionOffsetPixels = snapPosition * (dotIndicatorSize + dotsSpacing * 2);
+                float indicatorTranslationX = globalPositionOffsetPixels + horizontalMargin - dotIndicatorAdditionalSize / 2f;
+                dotIndicatorSpring.getSpring().setFinalPosition(indicatorTranslationX);
+                dotIndicatorSpring.animateToFinalPosition(indicatorTranslationX);
+            }
+
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+
+            }
+        };
+
     }
 
     private void setUpViewPager() {
@@ -290,4 +334,17 @@ public class SpringDotsIndicator extends FrameLayout {
         setUpViewPager();
         refreshDots();
     }
+
+    public void setRecyclerView(RecyclerView recyclerView, SnapHelper snapHelper) {
+        this.recyclerView = recyclerView;
+        this.snapHelper = snapHelper;
+        recyclerView.getAdapter().registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                refreshDots();
+            }
+        });
+        refreshDots();
+    }
+
 }
