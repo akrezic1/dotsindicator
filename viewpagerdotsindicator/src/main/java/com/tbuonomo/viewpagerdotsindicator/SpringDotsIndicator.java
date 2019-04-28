@@ -191,7 +191,11 @@ public class SpringDotsIndicator extends FrameLayout {
         ImageView dotView = dot.findViewById(R.id.spring_dot);
         dotView.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.spring_dot_background));
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) dotView.getLayoutParams();
-        params.width = params.height = dotIndicatorSize;
+        int dotSize = dotIndicatorSize;
+        if (!stroke) {
+            dotSize++;
+        }
+        params.width = params.height = dotSize;
         params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
 
         params.setMargins(dotsSpacing, 0, dotsSpacing, 0);
@@ -261,7 +265,7 @@ public class SpringDotsIndicator extends FrameLayout {
                 int snapPosition = recyclerView.getLayoutManager()
                                                .getPosition(snapHelper.findSnapView(recyclerView.getLayoutManager()));
                 float globalPositionOffsetPixels = snapPosition * (dotIndicatorSize + dotsSpacing * 2);
-                float indicatorTranslationX = globalPositionOffsetPixels + horizontalMargin - dotIndicatorAdditionalSize / 2f;
+                float indicatorTranslationX = globalPositionOffsetPixels + horizontalMargin - dotIndicatorAdditionalSize / 2f + 1;
                 dotIndicatorSpring.getSpring().setFinalPosition(indicatorTranslationX);
                 dotIndicatorSpring.animateToFinalPosition(indicatorTranslationX);
             }
